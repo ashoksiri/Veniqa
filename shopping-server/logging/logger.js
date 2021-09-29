@@ -2,6 +2,8 @@ import winston from 'winston';
 import winstonMongoTransport from 'winston-mongodb'; // This will expose winston.transports.MongoDB
 import config from 'config';
 
+console.log(process.env.VENIQA_MONGODB_URL);
+
 // Winston needs to be told about color coding, but it only takes effect on loggers where the format parameter has a colorize called
 winston.addColors({
   error: 'bold red',

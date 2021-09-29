@@ -24,28 +24,28 @@ app.set('port', port);
 
 // OPTION 1: WITH CLUSTER
 
-if (cluster.isMaster) {
-  console.log(`[CLUSTER]: Master ${process.pid} is running`);
-  console.log("[CLUSTER]: Number of CPUs ", numCPUs);
+// if (cluster.isMaster) {
+//   console.log(`[CLUSTER]: Master ${process.pid} is running`);
+//   console.log("[CLUSTER]: Number of CPUs ", numCPUs);
 
-  // Fork workers.
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
+//   // Fork workers.
+//   for (let i = 0; i < numCPUs; i++) {
+//     cluster.fork();
+//   }
 
-  cluster.on('exit', (worker, code, signal) => {
-    console.log(`[CLUSTER]: worker ${worker.process.pid} died`);
-    cluster.fork();
-  });
+//   cluster.on('exit', (worker, code, signal) => {
+//     console.log(`[CLUSTER]: worker ${worker.process.pid} died`);
+//     cluster.fork();
+//   });
 
-} else {
-  // Workers can share any TCP connection
-  // In this case it is an HTTP server
-  var server = http.createServer(app);
-  server.listen(port);
+// } else {
+//   // Workers can share any TCP connection
+//   // In this case it is an HTTP server
+//   var server = http.createServer(app);
+//   server.listen(port);
 
-  console.log(`[CLUSTER]: Worker ${process.pid} started at port ${port}`);
-}
+//   console.log(`[CLUSTER]: Worker ${process.pid} started at port ${port}`);
+// }
 
 // OPTION 2: WITHOUT CLUSTER
 
@@ -53,17 +53,17 @@ if (cluster.isMaster) {
  * Create HTTP server.
  */
 
-//var server = http.createServer(app);
+var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-/*
+
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-/*
+
 
 /**
  * Normalize a port into a number, string, or false.
