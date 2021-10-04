@@ -13,7 +13,7 @@
 function reducer(memo, transformer) {
     return transformer(memo);
   }
-  
+
   /**
    * @param {object} object
    * @param {function[]} transformers
@@ -22,7 +22,7 @@ function reducer(memo, transformer) {
    */
   function forEachKey(object, transformers, propKeys, k) {
     var v = object[k];
-  
+
     if (propKeys.hasOwnProperty(k)) {
       object[k] = transformers.reduce(reducer, v);
       return;
@@ -30,7 +30,7 @@ function reducer(memo, transformer) {
     if (!(typeof v === 'object' && v !== null)) return;
     iterate(v, transformers, propKeys);
   }
-  
+
   /**
    * @param {object} object
    * @param {function[]} transformers
@@ -39,7 +39,7 @@ function reducer(memo, transformer) {
   function iterate(object, transformers, propKeys) {
     Object.keys(object).forEach(forEachKey.bind(null, object, transformers, propKeys));
   }
-  
+
   /**
    * @param {function | function[]} transformers
    */
@@ -54,7 +54,7 @@ function reducer(memo, transformer) {
       throw new TypeError('Expected @transformers to be a function or array of functions but received: "' + transformers + '".');
     }
   }
-  
+
   /**
    * @param {object} object
    */
@@ -63,7 +63,7 @@ function reducer(memo, transformer) {
       throw new TypeError('Expected @object to be an object but received: "' + object + '".');
     }
   }
-  
+
   /**
    * @param {str | str[]} propKeys
    */
@@ -78,7 +78,7 @@ function reducer(memo, transformer) {
       throw new TypeError('Expected @propKeys to be a string or array of strings but received: "' + propKeys + '".');
     }
   }
-  
+
   /**
    * @param {object} object
    * @param {function[]} transformers
@@ -96,12 +96,12 @@ function reducer(memo, transformer) {
       return memo;
     }, {});
     iterate(object, transformers, propKeys);
-  
+
     return object;
   }
 
   /** Code below was added on top of the module for custom enhancement */
-  
+
   function castToString(arg) {
     return String(arg);
   }
@@ -110,7 +110,8 @@ function reducer(memo, transformer) {
   function castValuesToString(object, propKeys) {
     transformProps(object, castToString, propKeys);
   }
-  
+
   module.exports.transformProps = transformProps;
 
   module.exports.castValuesToString = castValuesToString;
+

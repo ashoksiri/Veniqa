@@ -2,21 +2,37 @@ import sendgridMail from '@sendgrid/mail';
 import config from 'config';
 import logger from '../logging/logger';
 import * as _ from 'lodash';
+import nodemailer from 'nodemailer';
+import fs from 'fs';
+import path from "path";
+
 sendgridMail.setApiKey(process.env.VENIQA_SENDGRID_API_KEY);
+
+
+
+const transport = nodemailer.createTransport({
+    host: process.env.VENIQA_NODEMAILER_HOST,
+    port: process.env.VENIQA_NODEMAILER_PORT,
+    auth: {
+        user: process.env.VENIQA_NODEMAILER_USER,
+        pass: process.env.VENIQA_NODEMAILER_PASSWORD
+    }
+});
 
 export default {
     emailEmailConfirmationInstructions(email, name, token) {
+        const template = fs.readFileSync( './public/email_templates/email-order-success.html')
         // setup email data
         let mailOptions = {
-            from: '"Veniqa Support" <support@veniqa.com>', // sender address
+            from: '"Veniqa Support" <slpjewellery@gmail.com>', // sender address
             to: email, // list of receivers
             subject: 'Welcome to Veniqa - Please Confirm Your Email', // Subject line
-            html: '<b>Hi </b>' +  name + '<br>Please click the link below to confirm your email address<br><br><button><a href="' + config.get('frontend_urls.email_confirmation_base_url') + '/' + token + '">Confirm Your Email Address</a></button>',
-            templateId: config.get('sendgrid.templates.confirm_account_customer'),
-            dynamic_template_data: {
-                name: name,
-                confirm_account_customer_url: config.get('frontend_urls.email_confirmation_base_url') + '/' + token
-            }
+            html: template.toString('utf-8'),
+            // templateId: config.get('sendgrid.templates.confirm_account_customer'),
+            // dynamic_template_data: {
+            //     name: name,
+            //     confirm_account_customer_url: config.get('frontend_urls.email_confirmation_base_url') + '/' + token
+            // }
         };
 
         this.triggerEmail(mailOptions);
@@ -73,9 +89,9 @@ export default {
     },
 
     triggerEmail(mailOptions) {
-        sendgridMail.send(mailOptions, (error, result) => {
+        transport.sendMail(mailOptions, (error, result) => {
             if (error) {
-                return logger.error("Error while sending email", {meta: error});
+                return logger.error("Error while sending email using sendgrid", {meta: error});
             }
             logger.verbose('Email sent', {meta: result});
         });
@@ -84,11 +100,11 @@ export default {
     parseOrderDetailsForEmail(orderObj) {
         // Extract only the applicable root nodes first
         orderObj = (({_id, overall_status, cart, user_email, mailing_address, payment_info}) => ({_id, overall_status, cart, user_email, mailing_address, payment_info}))(orderObj)
-        
+
         // This goes through the items array and only selects the given object keys no matter how deep in tree. also brings them on the same level in the process
         orderObj.cart.items = _.map(orderObj.cart.items, _.partialRight(_.pick, ['product.name', 'product.brand', 'product.store', 'product.price', 'counts', 'aggregatedPrice', 'customizations']));
         orderObj.payment_info = _.map(orderObj.payment_info, _.partialRight(_.pick, ['source', 'type', 'amount_in_payment_currency']))
-        
+
         return orderObj;
     }
 }

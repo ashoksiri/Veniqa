@@ -56,9 +56,9 @@ if (process.env.NODE_ENV && process.env.NODE_ENV === 'development') {
 }
 else {
   redisClient = redis.createClient({
-    host: process.env.VENIQA_REDIS_HOST, 
-    port: process.env.VENIQA_REDIS_PORT, 
-    password: process.env.VENIQA_REDIS_PASSWORD, 
+    host: process.env.VENIQA_REDIS_HOST,
+    port: process.env.VENIQA_REDIS_PORT,
+    password: process.env.VENIQA_REDIS_PASSWORD,
     db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
     tls: {
       host: process.env.VENIQA_REDIS_HOST,
@@ -83,35 +83,35 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-// app.use(cookieParser());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use(helmet());
-// app.use(compression());
+app.use(helmet());
+app.use(compression());
 
 /************************************************************* */
 
 // Configure sessions
-// app.use(session({
-//   genid: (req) => {
-//     return uuidv4() // Use UUIDs for session IDs
-//   },
-//   store: new RedisStore({
-//     host: process.env.VENIQA_REDIS_HOST, 
-//     port: process.env.VENIQA_REDIS_PORT, 
-//     pass: process.env.VENIQA_REDIS_PASSWORD, 
-//     db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
-//     client: redisClient
-//   }),
-//   secret: process.env.VENIQA_SESSION_SECRET_KEY,
-//   resave: false,  // setting true forces a resave in store even if session not changed
-//   rolling: true,  // setting true updates expiration with maxAge after every user request
-//   saveUninitialized: true,  // setting true saves even unmodified sessions
-//   cookie: {
-//     httpOnly: true,
-//     maxAge: config.get('session.max_age')
-//     // secure: true, // Set this to true only after veniqa has a ssl enabled site
-//   }
-// }))
+app.use(session({
+  genid: (req) => {
+    return uuidv4() // Use UUIDs for session IDs
+  },
+  store: new RedisStore({
+    host: process.env.VENIQA_REDIS_HOST,
+    port: process.env.VENIQA_REDIS_PORT,
+    pass: process.env.VENIQA_REDIS_PASSWORD,
+    db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
+    client: redisClient
+  }),
+  secret: process.env.VENIQA_SESSION_SECRET_KEY,
+  resave: false,  // setting true forces a resave in store even if session not changed
+  rolling: true,  // setting true updates expiration with maxAge after every user request
+  saveUninitialized: true,  // setting true saves even unmodified sessions
+  cookie: {
+    httpOnly: true,
+    maxAge: config.get('session.max_age'),
+    // secure: true, // Set this to true only after veniqa has a ssl enabled site
+  }
+}))
 
 /************************************************************* */
 // Configure Request Rate Limiter
@@ -143,10 +143,10 @@ var corsOptions = {
   origin: config.get('allowed_origins'),
   methods: ['GET, POST, OPTIONS, PUT, DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  // credentials: true
+  credentials: true
 }
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 /************************************************************** */
 
@@ -161,7 +161,10 @@ app.use('/ui', uiRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  // console.log(res)
+  // res.sendStatus(404);
+  res.status(404).json({detail:'Not found', error: false})
+  // next(createError(404));
 });
 
 // error handler

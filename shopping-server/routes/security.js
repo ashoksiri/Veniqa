@@ -3,13 +3,15 @@ import securityController from '../controllers/securityController';
 import HttpStatusCode from 'http-status-codes';
 var router = express.Router();
 import passport from 'passport';
+import {methodNotAllowed} from '../utilities/http-handler'
+
 
 /* GET Amazon Endpoint. */
 router.get('/', function(req, res, next) {
-    res.render('index', { title: 'Veniqa Security' });
+    res.json({ title: 'Veniqa Security' });
 });
 
-router.route('/signup').post(securityController.signup);
+router.route('/signup' ).post(securityController.signup)
 
 router.post('/login', passport.authenticate('login'), (req, res, next) => {
     // If this part gets executed, it means authentication was successful
@@ -62,5 +64,7 @@ router.route('/forgotPassword').get(securityController.forgotPassword);
 router.route('/validatePasswordResetToken/:token').get(securityController.validatePasswordResetToken);
 
 router.route('/resetPassword').post(securityController.resetPassword);
+
+router.use(methodNotAllowed)
 
 module.exports = router;
